@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSIA Vie Assurances – Mon Diagnostic</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1a2b5e;--navy2:#0f1e45;--gold:#c8991a;--gold2:#e8b830;--cream:#f8f7f4;--white:#fff;--text:#1a2b5e;--muted:#6b7a99;--success:#27ae60;--purple:#8b5cf6;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Open Sans',sans-serif;background:var(--cream);min-height:100vh;color:var(--text);}
+
+  .top-header{background:linear-gradient(135deg,var(--navy2),var(--navy));padding:16px 32px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(26,43,94,0.3);}
+  .top-header img{height:50px;width:auto;}
+  .header-tag{font-size:11px;color:rgba(255,255,255,0.6);font-weight:300;letter-spacing:1px;text-transform:uppercase;border-left:2px solid var(--gold);padding-left:12px;}
+
+  .hero{background:linear-gradient(135deg,var(--navy),#2a3f7a);padding:44px 20px;text-align:center;}
+  .hero-badge{display:inline-block;border:1px solid var(--gold);color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:5px 18px;border-radius:30px;margin-bottom:18px;font-weight:600;}
+  .hero h1{font-family:'Libre Baskerville',serif;font-size:clamp(22px,4vw,36px);color:white;line-height:1.3;margin-bottom:12px;}
+  .hero h1 span{color:var(--gold2);}
+  .hero p{color:rgba(255,255,255,0.7);font-size:14px;}
+
+  .main{max-width:660px;margin:0 auto;padding:36px 20px 80px;}
+  .card{background:var(--white);border-radius:20px;padding:42px 40px;box-shadow:0 6px 48px rgba(26,43,94,0.1);border-top:4px solid var(--gold);}
+  @media(max-width:500px){.card{padding:26px 20px;}}
+
+  .screen{display:none;}.screen.active{display:block;}
+
+  .progress-wrap{margin-bottom:30px;}
+  .progress-info{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.8px;}
+  .progress-bar{height:5px;background:#e5e9f2;border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--gold));border-radius:99px;transition:width 0.5s;}
+
+  .civilite-row{display:flex;gap:12px;margin-bottom:20px;}
+  .civ-btn{flex:1;padding:12px;border:1.5px solid #d8dff0;border-radius:10px;background:#fafbfd;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+  .civ-btn.active{border-color:var(--gold);background:#fffbf0;color:var(--navy);}
+
+  .field-group{margin-bottom:20px;}
+  label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;}
+  input[type="text"],input[type="tel"]{width:100%;padding:15px 18px;border:1.5px solid #d8dff0;border-radius:10px;font-family:'Open Sans',sans-serif;font-size:15px;color:var(--text);background:#fafbfd;outline:none;transition:border-color 0.2s;}
+  input:focus{border-color:var(--navy);background:white;}
+
+  .question-title{font-family:'Libre Baskerville',serif;font-size:clamp(17px,3vw,22px);color:var(--navy);margin-bottom:8px;line-height:1.4;}
+  .question-hint{font-size:12px;color:var(--muted);margin-bottom:20px;font-style:italic;}
+
+  .options{display:grid;gap:10px;}
+  .option{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1.5px solid #d8dff0;border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:14px;background:#fafbfd;position:relative;}
+  .option:hover{border-color:var(--navy);background:#f0f3fb;transform:translateX(3px);}
+  .option.selected{border-color:var(--gold);background:#fffbf0;font-weight:600;}
+  .option-dot{width:20px;height:20px;border-radius:50%;border:2px solid #c5cfdf;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;transition:all 0.2s;}
+  .option.selected .option-dot{border-color:var(--gold);background:var(--gold);}
+  .option.multi-mode .option-dot{border-radius:6px;}
+  .priority-badge{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--navy);color:white;font-size:11px;font-weight:700;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+
+  .btn{width:100%;padding:16px;border-radius:12px;border:none;cursor:pointer;font-family:'Open Sans',sans-serif;font-size:15px;font-weight:600;transition:all 0.25s;margin-top:22px;}
+  .btn-navy{background:linear-gradient(135deg,var(--navy2),var(--navy));color:white;}
+  .btn-navy:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,43,94,0.3);}
+  .btn-navy:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy2);}
+  .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,153,26,0.4);}
+  .btn-back{display:block;width:100%;margin-top:10px;padding:16px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy2);font-family:'Open Sans',sans-serif;font-size:15px;font-weight:600;letter-spacing:0.5px;cursor:pointer;text-align:center;transition:all 0.25s;}
+  .btn-back:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,153,26,0.4);}
+  .btn-back:disabled{opacity:0.2;cursor:not-allowed;transform:none;}
+
+  .capture-intro{text-align:center;margin-bottom:32px;}
+  .capture-intro .shield{font-size:44px;margin-bottom:14px;}
+  .capture-intro h2{font-family:'Libre Baskerville',serif;font-size:23px;color:var(--navy);margin-bottom:10px;}
+  .capture-intro p{color:var(--muted);font-size:14px;line-height:1.7;}
+  .trust-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:14px;}
+  .trust-item{font-size:12px;color:var(--muted);}
+
+  .result-greeting{font-family:'Libre Baskerville',serif;font-size:20px;color:var(--navy);margin-bottom:6px;}
+  .result-sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+
+  .product-card{border-radius:16px;padding:26px;margin-bottom:16px;border:2px solid transparent;position:relative;overflow:hidden;transition:all 0.25s;}
+  .product-card.main-product{background:linear-gradient(135deg,#f0f4ff,#e8edf8);border-color:var(--navy);}
+  .product-card.main-product:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(26,43,94,0.15);}
+  .product-card.funeral{background:linear-gradient(135deg,#f5f0ff,#ede8ff);border-color:var(--purple);}
+  .product-card.epargne{background:linear-gradient(135deg,#f0fff4,#e8f8ee);border-color:var(--success);}
+  .product-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:12px;}
+  .tag-navy{background:var(--navy);color:white;}
+  .tag-purple{background:var(--purple);color:white;}
+  .tag-green{background:var(--success);color:white;}
+  .product-name{font-family:'Libre Baskerville',serif;font-size:19px;color:var(--navy);margin-bottom:8px;font-weight:700;}
+  .product-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px;}
+  .product-select-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;transition:all 0.2s;color:white;}
+  .product-select-btn.selected-btn{background:var(--success) !important;}
+
+  .selected-check{display:none;position:absolute;top:14px;right:14px;background:var(--success);color:white;border-radius:50%;width:26px;height:26px;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .is-selected .selected-check{display:flex;}
+
+  .prestige-card{border-radius:16px;padding:26px;margin-bottom:16px;background:linear-gradient(135deg,#0f1e45,#1a2b5e,#2a1a4e);position:relative;overflow:hidden;transition:all 0.25s;border:1px solid rgba(200,153,26,0.3);}
+  .prestige-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(15,30,69,0.4);}
+  .prestige-lock{font-size:28px;margin-bottom:10px;}
+  .prestige-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 12px;border-radius:20px;margin-bottom:10px;background:rgba(200,153,26,0.2);color:var(--gold2);border:1px solid rgba(200,153,26,0.3);}
+  .prestige-name{font-family:'Libre Baskerville',serif;font-size:18px;color:white;margin-bottom:6px;font-weight:700;}
+  .prestige-sub{font-size:11px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;}
+  .prestige-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:16px;}
+  .prestige-desc strong{color:var(--gold2);}
+  .prestige-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;border:1px solid var(--gold);cursor:pointer;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;background:transparent;color:var(--gold2);transition:all 0.2s;}
+  .prestige-btn.selected-btn{background:var(--gold);color:var(--navy2);}
+
+  .warning-box{background:#fff8f0;border:1px solid #fcd38d;border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px;color:#b45309;line-height:1.6;}
+
+  .cta-final{background:linear-gradient(135deg,var(--navy2),var(--navy));border-radius:18px;padding:30px;text-align:center;color:white;margin-top:10px;}
+  .cta-final h3{font-family:'Libre Baskerville',serif;font-size:20px;margin-bottom:8px;}
+  .cta-final p{font-size:13px;opacity:0.72;margin-bottom:18px;line-height:1.6;}
+  .selected-summary{background:rgba(255,255,255,0.1);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;text-align:left;line-height:1.8;}
+  .selected-summary strong{color:var(--gold2);}
+  .cta-final .btn-gold{margin-top:0;}
+
+  .nsia-footer{text-align:center;margin-top:22px;font-size:11px;color:var(--muted);line-height:1.8;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+  .anim-up{animation:fadeUp 0.5s ease both;}
+</style>
+</head>
+<body>
+
+<div class="top-header">
+  <img id="nsia-logo" src="" alt="NSIA Vie Assurances"/>
+  <div class="header-tag">Espace Conseil Patrimonial</div>
+</div>
+
+<div class="hero">
+  <div class="hero-badge">✦ Service gratuit &amp; sans engagement</div>
+  <h1>Trouvez la solution NSIA<br><span>faite pour vous</span></h1>
+  <p>Répondez à quelques questions · Recommandation personnalisée immédiate</p>
+</div>
+
+<div class="main">
+  <div class="card anim-up">
+
+    <!-- CAPTURE -->
+    <div class="screen active" id="screen-capture">
+      <div class="capture-intro">
+        <div class="shield">🛡️</div>
+        <h2>Votre diagnostic gratuit</h2>
+        <p>En 2 minutes, découvrez quel produit NSIA correspond exactement à votre situation et vos objectifs de vie.</p>
+      </div>
+      <div class="field-group">
+        <label>Civilité</label>
+        <div class="civilite-row">
+          <button class="civ-btn" id="civ-m" onclick="setCivilite('Monsieur')">👨 Monsieur</button>
+          <button class="civ-btn" id="civ-f" onclick="setCivilite('Madame')">👩 Madame</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="inp-nom">Votre prénom</label>
+        <input type="text" id="inp-nom" placeholder="Ex : Konan, Aya, Marc..."/>
+      </div>
+      <div class="field-group">
+        <label for="inp-tel">Votre numéro WhatsApp</label>
+        <input type="tel" id="inp-tel" placeholder="Ex : 07 00 00 00 00"/>
+      </div>
+      <button class="btn btn-navy" onclick="startQuiz()">Démarrer mon diagnostic →</button>
+      <div class="trust-row">
+        <div class="trust-item">🔒 Confidentiel</div>
+        <div class="trust-item">✅ 100% gratuit</div>
+        <div class="trust-item">⏱ 2 minutes</div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="screen" id="screen-quiz">
+      <div class="progress-wrap">
+        <div class="progress-info">
+          <span id="q-label">Question 1 / 7</span>
+          <span id="q-pct">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="question-title" id="question-text"></div>
+      <div class="question-hint" id="question-hint" style="display:none"></div>
+      <div class="options" id="options-container"></div>
+      <button class="btn btn-navy" id="btn-next" onclick="nextQuestion()" disabled>Continuer →</button>
+      <button class="btn-back" id="btn-back" onclick="prevQuestion()">← Question précédente</button>
+    </div>
+
+    <!-- RÉSULTATS -->
+    <div class="screen" id="screen-results"></div>
+  </div>
+
+  <div class="nsia-footer">
+    NSIA Vie Assurances · Votre avenir, notre engagement<br>
+    Ce bilan est fourni à titre indicatif. Pour un conseil personnalisé, contactez votre conseiller(e).
+  </div>
+</div>
+
+<script>
+let current=0,answers={},userName='',userPhone='',userCivilite='';
+let selectedProducts=[],objectifOrder=[];
+
+const questions=[
+  {key:'age',text:'Quel est votre âge ?',
+   options:['Moins de 30 ans','30 – 44 ans','45 – 54 ans','55 ans ou plus']},
+  {key:'statut',text:'Quelle est votre situation professionnelle ?',
+   options:["Salarié(e) du secteur public","Salarié(e) du secteur privé","Indépendant(e) / Commerçant(e)","Sans emploi / Retraité(e)"]},
+  {key:'banque',text:'Avez-vous un compte bancaire actif ?',
+   options:['Oui, avec prélèvement possible','Non, je n\'ai pas de compte bancaire']},
+  {key:'enfants',text:'Votre dernier enfant a-t-il plus de 13 ans ?',
+   options:['Oui','Non','Je n\'ai pas d\'enfants mais je veux souscrire pour des enfants à naître']},
+  {key:'parents',text:'En cas de décès d\'un parent, souhaitez-vous être assisté(e) dans ce moment ?',
+   options:['Oui, et mes parents ont moins de 75 ans','Oui, mais mes parents ont plus de 75 ans','Non, ce n\'est pas ma priorité']},
+  {key:'objectif',text:'Quels sont vos objectifs financiers ?',
+   hint:'Cochez dans l\'ordre de vos priorités — le 1er coché = votre objectif principal',
+   options:['Préparer ma retraite','Assurer les études de mes enfants','Épargner et tenter ma chance','Protéger ma famille en cas de décès'],
+   multiple:true},
+  {key:'revenus',text:'Quel est votre revenu mensuel net ?',
+   options:['Moins de 200 000 FCFA','200 000 – 500 000 FCFA','500 000 – 1 000 000 FCFA','Plus de 1 000 000 FCFA']}
+];
+
+const productData={
+  retraite:{name:'NSIA Retraite',tag:'⭐ Recommandé pour vous',tagClass:'tag-navy',cardClass:'main-product',btnColor:'var(--navy)',emoji:'🏦',
+    desc:'Préparez-vous une retraite confortable en complément de ce que vous percevrez de l\'État. Cotisez régulièrement et constituez un capital garanti pour votre avenir.'},
+  etudes:{name:'NSIA Études',tag:'📚 Pour votre famille',tagClass:'tag-navy',cardClass:'main-product',btnColor:'var(--navy)',emoji:'🎓',
+    desc:'Assurez l\'avenir scolaire de vos enfants jusqu\'à la Licence ou le Master. Même après votre décès, NSIA prend le relais et finance les études de votre enfant.'},
+  funerailles:{name:'NSIA Assistance Funérailles',tag:'🕊️ Protection familiale',tagClass:'tag-purple',cardClass:'funeral',btnColor:'var(--purple)',emoji:'🕊️',
+    desc:'En cas de décès d\'un parent assuré, NSIA vous verse 1 000 000 FCFA pour vous accompagner dans ce moment difficile. Cotisation : 25 000 FCFA / an / personne. Payable par Wave ou Orange Money.'},
+  epargne:{name:'NSIA Épargne Projet',tag:'💰 Épargne + Chance',tagClass:'tag-green',cardClass:'epargne',btnColor:'var(--success)',emoji:'💰',
+    desc:'Épargnez en toute sécurité avec une garantie décès incluse. Et tous les 3 mois, un tirage au sort vous donne la chance de remporter 1 000 000 FCFA !'}
+};
+
+// Inject logo
+window.onload=function(){
+  document.getElementById('nsia-logo').src='data:image/webp;base64,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';
+};
+
+function setCivilite(c){
+  userCivilite=c;
+  document.getElementById('civ-m').classList.toggle('active',c==='Monsieur');
+  document.getElementById('civ-f').classList.toggle('active',c==='Madame');
+}
+
+function startQuiz(){
+  if(!userCivilite){alert('Merci de choisir votre civilité.');return;}
+  const n=document.getElementById('inp-nom').value.trim();
+  const t=document.getElementById('inp-tel').value.trim();
+  if(!n){alert('Merci de renseigner votre prénom.');return;}
+  if(!t||t.length<8){alert('Merci de renseigner un numéro valide.');return;}
+  userName=n;userPhone=t;
+  show('screen-quiz');renderQ();
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQ(){
+  const q=questions[current];
+  const pct=Math.round((current/questions.length)*100);
+  document.getElementById('q-label').textContent='Question '+(current+1)+' / '+questions.length;
+  document.getElementById('q-pct').textContent=pct+'%';
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('question-text').textContent=q.text;
+  const hint=document.getElementById('question-hint');
+  if(q.hint){hint.textContent=q.hint;hint.style.display='block';}
+  else{hint.style.display='none';}
+
+  // Bouton retour : visible sauf à la Q1
+  const btnBack=document.getElementById('btn-back');
+  btnBack.style.display=current===0?'none':'block';
+
+  const c=document.getElementById('options-container');
+  c.innerHTML='';
+
+  if(q.multiple){
+    objectifOrder=[];
+    q.options.forEach((opt,i)=>{
+      const d=document.createElement('div');
+      d.className='option multi-mode';
+      d.innerHTML='<div class="option-dot"></div><span>'+opt+'</span>';
+      d.onclick=()=>toggleMulti(i,d,opt,q);
+      c.appendChild(d);
+    });
+  } else {
+    q.options.forEach((opt,i)=>{
+      const d=document.createElement('div');
+      d.className='option';
+      // Pré-sélectionner si déjà répondu
+      if(answers[q.key]&&answers[q.key].index===i) d.classList.add('selected');
+      d.innerHTML='<div class="option-dot"></div><span>'+opt+'</span>';
+      d.onclick=()=>{
+        document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+        d.classList.add('selected');
+        answers[q.key]={index:i,value:opt};
+        document.getElementById('btn-next').disabled=false;
+      };
+      c.appendChild(d);
+    });
+  }
+
+  const btn=document.getElementById('btn-next');
+  btn.disabled=!answers[q.key]&&!q.multiple;
+  btn.textContent=current===questions.length-1?'Voir mes recommandations →':'Continuer →';
+}
+
+function prevQuestion(){
+  if(current===0)return;
+  current--;
+  renderQ();
+}
+
+function toggleMulti(i,el,val,q){
+  const already=objectifOrder.findIndex(o=>o.index===i);
+  if(already>=0){
+    objectifOrder.splice(already,1);
+    el.classList.remove('selected');
+    const badge=el.querySelector('.priority-badge');
+    if(badge) badge.remove();
+    // Renuméroter
+    document.querySelectorAll('.option.multi-mode').forEach(opt=>{
+      const b=opt.querySelector('.priority-badge');
+      if(b){
+        const idx=objectifOrder.findIndex(o=>o.value===opt.querySelector('span').textContent);
+        if(idx>=0) b.textContent=idx+1;
+      }
+    });
+  } else {
+    objectifOrder.push({index:i,value:val});
+    el.classList.add('selected');
+    const badge=document.createElement('div');
+    badge.className='priority-badge';
+    badge.textContent=objectifOrder.length;
+    el.appendChild(badge);
+  }
+  answers[q.key]=objectifOrder.map(o=>o.value);
+  document.getElementById('btn-next').disabled=objectifOrder.length===0;
+}
+
+function nextQuestion(){
+  if(questions[current].multiple&&objectifOrder.length===0)return;
+  if(!questions[current].multiple&&!answers[questions[current].key])return;
+  current++;
+  if(current<questions.length)renderQ();
+  else showResults();
+}
+
+function getRecommendations(){
+  const age=answers.age?.index??0;
+  const banque=answers.banque?.index??0;
+  // enfants: 0=Oui(>13ans), 1=Non(<13ans), 2=pas d'enfants/à naître
+  const enfantLt13=answers.enfants?.index===1||answers.enfants?.index===2; // <13 ou à naître → éligible NSIA Études
+  const parents=answers.parents?.index??2;
+  const objectifs=answers.objectif??[];
+  const ageLt55=age<=2;
+  let products=[],warning=null;
+
+  if(banque!==0){
+    warning="Sans compte bancaire, seul le produit NSIA Assistance Funérailles est accessible, car il est payable par Mobile Money (Wave, Orange Money...).";
+    return{products:['funerailles'],warning};
+  }
+
+  const productMap={
+    'Préparer ma retraite':ageLt55?'retraite':null,
+    'Assurer les études de mes enfants':(enfantLt13&&ageLt55)?'etudes':null,
+    'Épargner et tenter ma chance':'epargne',
+    'Protéger ma famille en cas de décès':parents===0?'funerailles':null
+  };
+
+  objectifs.forEach(obj=>{
+    const p=productMap[obj];
+    if(p&&!products.includes(p))products.push(p);
+  });
+
+  if(enfantLt13&&ageLt55&&!products.includes('etudes'))products.push('etudes');
+  if(parents===0&&!products.includes('funerailles'))products.push('funerailles');
+  if(products.length===0)products.push('epargne');
+
+  return{products,warning};
+}
+
+function showResults(){
+  const{products,warning}=getRecommendations();
+  selectedProducts=[];
+
+  let html='<div class="anim-up">';
+  html+='<div class="result-greeting">Votre bilan, <span style="color:var(--gold)">'+userCivilite+' '+userName+'</span> 👋</div>';
+  html+='<div class="result-sub">Voici les solutions NSIA adaptées à votre profil. Sélectionnez celles qui vous intéressent.</div>';
+
+  if(warning) html+='<div class="warning-box">⚠️ '+warning+'</div>';
+
+  products.forEach(pid=>{
+    const p=productData[pid];
+    html+='<div class="product-card '+p.cardClass+'" id="card-'+pid+'">';
+    html+='<div class="selected-check">✓</div>';
+    html+='<div class="product-tag '+p.tagClass+'">'+p.tag+'</div>';
+    html+='<div class="product-name">'+p.emoji+' '+p.name+'</div>';
+    html+='<div class="product-desc">'+p.desc+'</div>';
+    html+='<button class="product-select-btn" id="btn-'+pid+'" style="background:'+p.btnColor+'" onclick="toggleProduct(\''+pid+'\')">Sélectionner ce produit</button>';
+    html+='</div>';
+  });
+
+  html+=`<div class="prestige-card" id="card-prestige">
+    <div class="selected-check">✓</div>
+    <div class="prestige-lock">🔐</div>
+    <div class="prestige-tag">✦ Accès restreint · Strictement confidentiel</div>
+    <div class="prestige-name">Protection Patrimoniale</div>
+    <div class="prestige-sub">Espace Privé NSIA</div>
+    <div class="prestige-desc">Ce dispositif exclusif permet de <strong>sécuriser votre patrimoine</strong> avec des avantages que peu de personnes connaissent.<br><br>Certaines informations ne peuvent pas être communiquées ici. <strong>Votre conseiller(e) vous expliquera tout en privé.</strong></div>
+    <button class="prestige-btn" id="btn-prestige" onclick="toggleProduct('prestige')">🔒 Je veux en savoir plus</button>
+  </div>`;
+
+  html+=`<div class="cta-final">
+    <h3>Être contacté(e) par mon/ma conseiller(e)</h3>
+    <div class="selected-summary" id="selected-summary">Sélectionnez un ou plusieurs produits ci-dessus.</div>
+    <p>Votre conseiller(e) NSIA vous rappellera rapidement pour vous accompagner dans votre souscription.</p>
+    <button class="btn btn-gold" onclick="sendWhatsApp()">📲 Envoyer ma demande sur WhatsApp</button>
+  </div></div>`;
+
+  document.getElementById('screen-results').innerHTML=html;
+  show('screen-results');
+}
+
+function toggleProduct(pid){
+  const card=document.getElementById('card-'+pid);
+  const btn=document.getElementById('btn-'+pid);
+  if(selectedProducts.includes(pid)){
+    selectedProducts=selectedProducts.filter(p=>p!==pid);
+    card.classList.remove('is-selected');
+    btn.textContent=pid==='prestige'?'🔒 Je veux en savoir plus':'Sélectionner ce produit';
+    btn.classList.remove('selected-btn');
+  } else {
+    selectedProducts.push(pid);
+    card.classList.add('is-selected');
+    btn.textContent='✓ Sélectionné';
+    btn.classList.add('selected-btn');
+  }
+  updateSummary();
+}
+
+function updateSummary(){
+  const s=document.getElementById('selected-summary');
+  if(selectedProducts.length===0){s.innerHTML='Sélectionnez un ou plusieurs produits ci-dessus.';return;}
+  const names=selectedProducts.map(pid=>pid==='prestige'?'🔐 Protection Patrimoniale (Espace Privé)':productData[pid].name);
+  s.innerHTML='<strong>Votre sélection :</strong><br>'+names.join('<br>');
+}
+
+function sendWhatsApp(){
+  if(selectedProducts.length===0){alert('Merci de sélectionner au moins un produit.');return;}
+  const names=selectedProducts.map(pid=>pid==='prestige'?'Protection Patrimoniale (Espace Privé)':productData[pid].name);
+  const objectifs=Array.isArray(answers.objectif)?answers.objectif.map((o,i)=>(i+1)+'. '+o).join('\n   '):'-';
+  const revenu=answers.revenus?.value??'Non renseigné';
+  const age=answers.age?.value??'Non renseigné';
+  const statut=answers.statut?.value??'Non renseigné';
+  const enfants=answers.enfants?.value??'Non renseigné';
+  const parents=answers.parents?.value??'Non renseigné';
+  const banque=answers.banque?.value??'Non renseigné';
+
+  const msg=encodeURIComponent(
+    '━━━━━━━━━━━━━━━━━━━━\n'+
+    '📋 NOUVEAU PROSPECT NSIA Vie Assurances\n'+
+    '━━━━━━━━━━━━━━━━━━━━\n\n'+
+    '👤 IDENTITÉ\n'+
+    '   • Civilité : '+userCivilite+'\n'+
+    '   • Prénom   : '+userName+'\n'+
+    '   • Téléphone : '+userPhone+'\n\n'+
+    '💼 PROFIL\n'+
+    '   • Âge       : '+age+'\n'+
+    '   • Situation : '+statut+'\n'+
+    '   • Revenu    : '+revenu+'\n'+
+    '   • Compte bancaire : '+banque+'\n'+
+    '   • Enfants   : '+enfants+'\n'+
+    '   • Parents   : '+parents+'\n\n'+
+    '🎯 OBJECTIFS (par ordre de priorité)\n'+
+    '   '+objectifs+'\n\n'+
+    '✅ PRODUITS SÉLECTIONNÉS\n'+
+    names.map(n=>'   👉 '+n).join('\n')+'\n\n'+
+    '━━━━━━━━━━━━━━━━━━━━\n'+
+    'Ce prospect souhaite être rappelé(e) par son/sa conseiller(e) NSIA.'
+  );
+  window.open('https://wa.me/2250704730171?text='+msg,'_blank');
+}
+</script>
+</body>
+</html>
